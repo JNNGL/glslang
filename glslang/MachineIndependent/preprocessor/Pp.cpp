@@ -620,7 +620,7 @@ int TPpContext::CPPifdef(int defined, TPpToken* ppToken)
 
 // Handle #include ...
 // TODO: Handle macro expansions for the header name
-int TPpContext::CPPinclude(TPpToken* ppToken, const char* name)
+int TPpContext::CPPinclude(TPpToken* ppToken, const char* name, const bool mojImport)
 {
     const TSourceLoc directiveLoc = ppToken->loc;
     bool startWithLocalSearch = true; // to additionally include the extra "" paths
@@ -667,7 +667,7 @@ int TPpContext::CPPinclude(TPpToken* ppToken, const char* name)
     // Find the inclusion, first look in "Local" ("") paths, if requested,
     // otherwise, only search the "System" (<>) paths.
     TShader::Includer::IncludeResult* res = nullptr;
-    if (startWithLocalSearch)
+    if (startWithLocalSearch || mojImport)
         res = includer.includeLocal(filename.c_str(), currentSourceFile.c_str(), includeStack.size() + 1);
     if (res == nullptr || res->headerName.empty()) {
         includer.releaseInclude(res);
@@ -983,7 +983,7 @@ int TPpContext::readCPPline(TPpToken* ppToken)
         case PpAtomMojImport: {
             const std::array exts = { E_GL_MC_moj_import };
             parseContext.ppRequireExtensions(ppToken->loc, exts, "#moj_import");
-            token = CPPinclude(ppToken, "#moj_import");
+            token = CPPinclude(ppToken, "#moj_import", true);
             break;
         }
         case PpAtomPragma:

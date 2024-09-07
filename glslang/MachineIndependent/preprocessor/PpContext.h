@@ -485,7 +485,7 @@ protected:
     int evalToToken(int token, bool shortCircuit, int& res, bool& err, TPpToken * ppToken);
     int CPPif (TPpToken * ppToken);
     int CPPifdef(int defined, TPpToken * ppToken);
-    int CPPinclude(TPpToken * ppToken, const char* name);
+    int CPPinclude(TPpToken * ppToken, const char* name, const bool mojImport = false);
     int CPPline(TPpToken * ppToken);
     int CPPerror(TPpToken * ppToken);
     int CPPpragma(TPpToken * ppToken);
