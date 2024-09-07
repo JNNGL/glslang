@@ -147,6 +147,8 @@ const struct {
     { PpAtomVersionMacro,    "__VERSION__" },
 
     { PpAtomInclude,         "include" },
+
+    { PpAtomMojImport,       "moj_import" },
 };
 
 } // end anonymous namespace

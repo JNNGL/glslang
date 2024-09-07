@@ -620,7 +620,7 @@ int TPpContext::CPPifdef(int defined, TPpToken* ppToken)
 
 // Handle #include ...
 // TODO: Handle macro expansions for the header name
-int TPpContext::CPPinclude(TPpToken* ppToken)
+int TPpContext::CPPinclude(TPpToken* ppToken, const char* name)
 {
     const TSourceLoc directiveLoc = ppToken->loc;
     bool startWithLocalSearch = true; // to additionally include the extra "" paths
@@ -645,7 +645,7 @@ int TPpContext::CPPinclude(TPpToken* ppToken)
     }
 
     if (token != PpAtomConstString) {
-        parseContext.ppError(directiveLoc, "must be followed by a header name", "#include", "");
+        parseContext.ppError(directiveLoc, "must be followed by a header name", name, "");
         return token;
     }
 
@@ -656,9 +656,9 @@ int TPpContext::CPPinclude(TPpToken* ppToken)
     token = scanToken(ppToken);
     if (token != '\n') {
         if (token == EndOfInput)
-            parseContext.ppError(ppToken->loc, "expected newline after header name:", "#include", "%s", filename.c_str());
+            parseContext.ppError(ppToken->loc, "expected newline after header name:", name, "%s", filename.c_str());
         else
-            parseContext.ppError(ppToken->loc, "extra content after header name:", "#include", "%s", filename.c_str());
+            parseContext.ppError(ppToken->loc, "extra content after header name:", name, "%s", filename.c_str());
         return token;
     }
 
@@ -697,7 +697,7 @@ int TPpContext::CPPinclude(TPpToken* ppToken)
         std::string message =
             res != nullptr ? std::string(res->headerData, res->headerLength)
                            : std::string("Could not process include directive");
-        parseContext.ppError(directiveLoc, message.c_str(), "#include", "for header name: %s", filename.c_str());
+        parseContext.ppError(directiveLoc, message.c_str(), name, "for header name: %s", filename.c_str());
         includer.releaseInclude(res);
     }
 
@@ -978,8 +978,14 @@ int TPpContext::readCPPline(TPpToken* ppToken)
                 const std::array exts = { E_GL_GOOGLE_include_directive, E_GL_ARB_shading_language_include };
                 parseContext.ppRequireExtensions(ppToken->loc, exts, "#include");
             }
-            token = CPPinclude(ppToken);
+            token = CPPinclude(ppToken, "#include");
             break;
+        case PpAtomMojImport: {
+            const std::array exts = { E_GL_MC_moj_import };
+            parseContext.ppRequireExtensions(ppToken->loc, exts, "#moj_import");
+            token = CPPinclude(ppToken, "#moj_import");
+            break;
+        }
         case PpAtomPragma:
             token = CPPpragma(ppToken);
             break;

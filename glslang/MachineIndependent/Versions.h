@@ -347,6 +347,9 @@ const char* const E_GL_EXT_shader_tile_image = "GL_EXT_shader_tile_image";
 
 const char* const E_GL_EXT_texture_shadow_lod = "GL_EXT_texture_shadow_lod";
 
+// MC
+const char* const E_GL_MC_moj_import = "GL_MC_moj_import";
+
 // Arrays of extensions for the above AEP duplications
 
 const char* const AEP_geometry_shader[] = { E_GL_EXT_geometry_shader, E_GL_OES_geometry_shader };

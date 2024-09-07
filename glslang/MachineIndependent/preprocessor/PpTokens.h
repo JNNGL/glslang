@@ -171,6 +171,9 @@ enum EFixedAtoms {
     // #include
     PpAtomInclude,
 
+    // #moj_import
+    PpAtomMojImport,
+
     PpAtomLast,
 };
 

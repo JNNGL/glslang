@@ -376,6 +376,9 @@ void TParseVersions::initializeExtensionBehavior()
     extensionBehavior[E_GL_OVR_multiview]                = EBhDisable;
     extensionBehavior[E_GL_OVR_multiview2]               = EBhDisable;
 
+    // MC
+    extensionBehavior[E_GL_MC_moj_import]                = EBhDisable;
+
     // explicit types
     extensionBehavior[E_GL_EXT_shader_explicit_arithmetic_types]         = EBhDisable;
     extensionBehavior[E_GL_EXT_shader_explicit_arithmetic_types_int8]    = EBhDisable;
@@ -998,6 +1001,8 @@ void TParseVersions::updateExtensionBehavior(int line, const char* extension, co
     else if (strcmp(extension, "GL_GOOGLE_include_directive") == 0)
         updateExtensionBehavior(line, "GL_GOOGLE_cpp_style_line_directive", behaviorString);
     else if (strcmp(extension, "GL_ARB_shading_language_include") == 0)
+        updateExtensionBehavior(line, "GL_GOOGLE_cpp_style_line_directive", behaviorString);
+    else if (strcmp(extension, "GL_MC_moj_import") == 0)
         updateExtensionBehavior(line, "GL_GOOGLE_cpp_style_line_directive", behaviorString);
     // subgroup_* to subgroup_basic
     else if (strcmp(extension, "GL_KHR_shader_subgroup_vote") == 0)
