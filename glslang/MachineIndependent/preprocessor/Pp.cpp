@@ -86,6 +86,8 @@ NVIDIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstring>
 #include <cctype>
 #include <climits>
+#include <regex>
+#include <string>
 
 #include "PpContext.h"
 #include "PpTokens.h"

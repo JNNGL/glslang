@@ -136,6 +136,12 @@ protected:
         char* content = new tUserDataElement [length];
         file.seekg(0, file.beg);
         file.read(content, length);
+
+        char* version = strstr(content, "#version");
+        if (version) {
+            version[0] = version[1] = '/';
+        }
+
         return new IncludeResult(path, content, length, content);
     }
 
