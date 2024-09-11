@@ -669,7 +669,9 @@ int TPpContext::CPPinclude(TPpToken* ppToken, const char* name, const bool mojIm
     // Find the inclusion, first look in "Local" ("") paths, if requested,
     // otherwise, only search the "System" (<>) paths.
     TShader::Includer::IncludeResult* res = nullptr;
-    if (startWithLocalSearch || mojImport)
+    if (mojImport)
+        res = includer.includeMojImport(filename.c_str(), currentSourceFile.c_str(), startWithLocalSearch);
+    else if (startWithLocalSearch)
         res = includer.includeLocal(filename.c_str(), currentSourceFile.c_str(), includeStack.size() + 1);
     if (res == nullptr || res->headerName.empty()) {
         includer.releaseInclude(res);

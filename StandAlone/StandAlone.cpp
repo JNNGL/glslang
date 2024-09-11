@@ -184,6 +184,7 @@ bool EnhancedMsgs = false;
 bool AbsolutePath = false;
 bool DumpBuiltinSymbols = false;
 std::vector<std::string> IncludeDirectoryList;
+std::vector<std::string> ResourcePackDirectoryList;
 
 // Source environment
 // (source 'Client' is currently the same as target 'Client')
@@ -940,6 +941,9 @@ void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItem
             case 'I':
                 IncludeDirectoryList.push_back(getStringOperand("-I<dir> include path"));
                 break;
+            case 'M':
+                ResourcePackDirectoryList.push_back(getStringOperand("-M<dir> resource pack path"));
+                break;
             case 'O':
                 if (argv[0][2] == 'd')
                     Options |= EOptionOptimizeDisable;
@@ -1318,6 +1322,9 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
     DirStackFileIncluder includer;
     std::for_each(IncludeDirectoryList.rbegin(), IncludeDirectoryList.rend(), [&includer](const std::string& dir) {
         includer.pushExternalLocalDirectory(dir); });
+
+    std::for_each(ResourcePackDirectoryList.rbegin(), ResourcePackDirectoryList.rend(), [&includer](const std::string& dir) {
+        includer.pushResourcePackDirectory(dir); });
 
     std::vector<std::string> sources;
 
@@ -1962,6 +1969,7 @@ void usage()
            "  -H          print human readable form of SPIR-V; turns on -V\n"
            "  -I<dir>     add dir to the include search path; includer's directory\n"
            "              is searched first, followed by left-to-right order of -I\n"
+           "  -M<dir>     add dir to the resource pack list used by #moj_import"
            "  -Od         disables optimization; may cause illegal SPIR-V for HLSL\n"
            "  -Os         optimizes SPIR-V to minimize size\n"
            "  -P<text> | --preamble-text <text> | --P <text>\n"

@@ -198,6 +198,9 @@ typedef glsl_include_result_t* (*glsl_include_local_func)(void* ctx, const char*
 typedef glsl_include_result_t* (*glsl_include_system_func)(void* ctx, const char* header_name,
                                                            const char* includer_name, size_t include_depth);
 
+/* Callback for moj_import inclusion */
+typedef glsl_include_result_t* (*glsl_include_moj_import_func)(void* ctx, const char* header_name, const char* includer_name, bool local);
+
 /* Callback for include result destruction */
 typedef int (*glsl_free_include_result_func)(void* ctx, glsl_include_result_t* result);
 
@@ -205,6 +208,7 @@ typedef int (*glsl_free_include_result_func)(void* ctx, glsl_include_result_t* r
 typedef struct glsl_include_callbacks_s {
     glsl_include_system_func include_system;
     glsl_include_local_func include_local;
+    glsl_include_moj_import_func include_moj_import;
     glsl_free_include_result_func free_include_result;
 } glsl_include_callbacks_t;
 

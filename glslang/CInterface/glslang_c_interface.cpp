@@ -114,6 +114,17 @@ public:
         return glslang::TShader::Includer::includeLocal(headerName, includerName, inclusionDepth);
     }
 
+    virtual IncludeResult* includeMojImport(const char* headerName, const char* includerName, bool local) override
+    {
+        if (this->callbacks.include_moj_import) {
+            glsl_include_result_t* result =
+                this->callbacks.include_moj_import(this->context, headerName, includerName, local);
+            return makeIncludeResult(result);
+        }
+
+        return glslang::TShader::Includer::includeMojImport(headerName, includerName, local);
+    }
+
     /* This function only calls free_include_result callback
        when the IncludeResult instance is allocated by a C function */
     virtual void releaseInclude(IncludeResult* result) override

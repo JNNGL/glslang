@@ -65,6 +65,35 @@ public:
         return readSystemPath(headerName);
     }
 
+    virtual IncludeResult* includeMojImport(const char* headerName,
+                                            const char* includerName,
+                                            bool local) override
+    {
+        if (local) {
+            std::string path = getDirectory(includerName) + '/' + headerName;
+            std::replace(path.begin(), path.end(), '\\', '/');
+            std::ifstream file(path, std::ios_base::binary | std::ios_base::ate);
+            if (file) {
+                includedFiles.insert(path);
+                return newIncludeResult(path, file, (int)file.tellg(), true);
+            }
+
+            for (const std::string& includePath : directoryStack) {
+                std::string path = includePath + "/" + headerName;
+                std::replace(path.begin(), path.end(), '\\', '/');
+                std::ifstream file(path, std::ios_base::binary | std::ios_base::ate);
+                if (file) {
+                    includedFiles.insert(path);
+                    return newIncludeResult(path, file, (int)file.tellg(), true);
+                }
+            }
+
+            return nullptr;
+        }
+
+        return readResourcePackPath(headerName);
+    }
+
     // Externally set directories. E.g., from a command-line -I<dir>.
     //  - Most-recently pushed are checked first.
     //  - All these are checked after the parse-time stack of local directories
@@ -75,6 +104,11 @@ public:
     {
         directoryStack.push_back(dir);
         externalLocalDirectoryCount = (int)directoryStack.size();
+    }
+
+    virtual void pushResourcePackDirectory(const std::string& dir)
+    {
+        resourcePackStack.push_back(dir);
     }
 
     virtual void releaseInclude(IncludeResult* result) override
@@ -96,7 +130,32 @@ protected:
     typedef char tUserDataElement;
     std::vector<std::string> directoryStack;
     int externalLocalDirectoryCount;
+    std::vector<std::string> resourcePackStack;
     std::set<std::string> includedFiles;
+
+    virtual IncludeResult* readResourcePackPath(const char* headerName)
+    {
+        std::string headerNameStr = std::string(headerName);
+        std::string resNamespace = "minecraft";
+
+        size_t namespacePos = headerNameStr.find_first_of(':');
+        if (namespacePos != std::string::npos) {
+            resNamespace = headerNameStr.substr(0, namespacePos);
+            headerNameStr = headerNameStr.substr(namespacePos + 1);
+        }
+
+        for (const std::string& packPath : resourcePackStack) {
+            std::string path = packPath + "/assets/" + resNamespace + "/shaders/include/" + headerNameStr;
+            std::replace(path.begin(), path.end(), '\\', '/');
+            std::ifstream file(path, std::ios_base::binary | std::ios_base::ate);
+            if (file) {
+                includedFiles.insert(path);
+                return newIncludeResult(path, file, (int)file.tellg(), true);
+            }
+        }
+
+        return nullptr;
+    }
 
     // Search for a valid "local" path based on combining the stack of include
     // directories and the nominal name of the header.
@@ -116,7 +175,7 @@ protected:
             if (file) {
                 directoryStack.push_back(getDirectory(path));
                 includedFiles.insert(path);
-                return newIncludeResult(path, file, (int)file.tellg());
+                return newIncludeResult(path, file, (int)file.tellg(), false);
             }
         }
 
@@ -131,15 +190,15 @@ protected:
     }
 
     // Do actual reading of the file, filling in a new include result.
-    virtual IncludeResult* newIncludeResult(const std::string& path, std::ifstream& file, int length) const
+    virtual IncludeResult* newIncludeResult(const std::string& path, std::ifstream& file, int length, bool ignoreVersion) const
     {
         char* content = new tUserDataElement [length];
         file.seekg(0, file.beg);
         file.read(content, length);
 
-        char* version = strstr(content, "#version");
-        if (version) {
-            version[0] = version[1] = '/';
+        if (ignoreVersion) {
+            char* version = strstr(content, "#version");
+            if (version) version[0] = version[1] = '/';
         }
 
         return new IncludeResult(path, content, length, content);

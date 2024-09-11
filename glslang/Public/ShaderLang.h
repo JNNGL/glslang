@@ -633,6 +633,10 @@ public:
                                             const char* /*includerName*/,
                                             size_t /*inclusionDepth*/) { return nullptr; }
 
+        virtual IncludeResult* includeMojImport(const char* /*headerName*/,
+                                                const char* /*includerName*/,
+                                                bool /*local*/) { return nullptr; }
+
         // Signals that the parser will no longer use the contents of the
         // specified IncludeResult.
         virtual void releaseInclude(IncludeResult*) = 0;
